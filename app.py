@@ -117,6 +117,9 @@ def main():
             else:
                 st.warning("Please upload at least one PDF file.")
     
+    if 'summarized_pdfs' not in st.session_state:
+        st.session_state['summarized_pdfs'] = []  # Track which PDFs have been summarized
+
     if 'summary' not in st.session_state:
         st.session_state['summary'] = ""
 
@@ -125,13 +128,18 @@ def main():
     
     if st.button("Summarize"):
         if pdf_docs:
-            # Check if the PDF text is already processed
-            if 'pdf_texts' not in st.session_state or st.session_state['pdf_texts'] == "":
-                text = get_pdf_text(pdf_docs)  # Extract text if not already processed
-                st.session_state['pdf_texts'] = text  # Store in session state
-            else:
-                text = st.session_state['pdf_texts']  # Use the processed text from session state
+            text = ""
+            pdf_names_input = [name.strip() for name in pdfs_to_summarize.split(",")]
 
+            # Check if the PDF has already been summarized to avoid redundant summarization
+            for pdf_name, pdf_file in zip([pdf.name for pdf in pdf_docs], pdf_docs):
+                if pdf_name in pdf_names_input:
+                    if pdf_name not in st.session_state['summarized_pdfs']:
+                        st.session_state['summarized_pdfs'].append(pdf_name)  # Mark the PDF as summarized
+                        text += get_pdf_text([pdf_file])  # Extract and append the text
+                    else:
+                        st.info(f"PDF '{pdf_name}' has already been summarized.")
+            
             if text:
                 summary = summarize_text(text)
                 st.session_state['summary'] = summary  # Save the summary in session state
