@@ -163,8 +163,8 @@ def main():
                     # If summary is already in session, display it
                     st.write("Summary:", st.session_state[pdf_names_input[0]])
 
-        else:
-            st.warning("Please upload PDF files before summarizing.")
+            else:
+                st.warning("Please upload PDF files before summarizing.")
 
 
 
