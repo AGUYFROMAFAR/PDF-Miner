@@ -152,18 +152,15 @@ if text:
 
         
         if text:
-            # Call the summarization function
             summary = summarize_text(text)
             st.session_state['summary'] = summary  # Save the summary in session state
             st.write("Summary:", summary)
     else:
         st.warning("Please upload PDF files before summarizing.")
 
-    # Display the summary if it exists
     if st.session_state['summary']:
         st.write("Summary:", st.session_state['summary'])
 
-    # Question input
     user_question = st.text_input("Ask a Question from the PDF Files")
     if user_question:
         with st.spinner("Generating response..."):
