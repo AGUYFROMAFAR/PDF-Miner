@@ -126,12 +126,7 @@ def main():
             
             for pdf_name, pdf_file in zip(pdf_names, pdf_docs):
                 if pdf_name in pdf_names_input:
-                    # Check if the PDF's text is already processed
-                    if pdf_name not in st.session_state['pdf_texts']:
-                        # Extract text and store in session state
-                        st.session_state['pdf_texts'][pdf_name] = get_pdf_text([pdf_file])
-                    else:
-                        st.info(f"PDF '{pdf_name}' is already processed.")
+                    st.session_state['pdf_texts'][pdf_name] = get_pdf_text([pdf_file])  # Store each PDF's text in session state
 
             # Combine the texts for selected PDFs
             for name in pdf_names_input:
@@ -159,5 +154,5 @@ def main():
             response = process_user_input(user_question)
             st.write("Reply: ", response)
 
-if __name__ == "__main__":
-    main()
+if _name_ == "_main_":
+    main()
