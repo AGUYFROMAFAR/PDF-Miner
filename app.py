@@ -24,11 +24,11 @@ def main():
     pdf_names = list(st.session_state['pdf_texts'].keys())
     
     with st.expander("Summarize PDFs"):
-    pdfs_to_summarize = st.multiselect("Select PDFs to Summarize", options=pdf_names)
-    if st.button("Summarize"):
-        if pdfs_to_summarize:
-            text = ""
-            for name in pdfs_to_summarize:
+        pdfs_to_summarize = st.multiselect("Select PDFs to Summarize", options=pdf_names)
+        if st.button("Summarize"):
+            if pdfs_to_summarize:
+                text = ""
+         for name in pdfs_to_summarize:
                 if name in st.session_state['pdf_texts']:
                     text += st.session_state['pdf_texts'][name]
                 else:
