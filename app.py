@@ -140,7 +140,7 @@ if st.button("Summarize"):
                 text += st.session_state['pdf_texts'][name]
             else:
                 st.error(f"Error: PDF '{name}' not found.")
-                return
+                    return
         
         if text:
             # Call the summarization function
