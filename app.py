@@ -115,18 +115,25 @@ def main():
 
     pdf_names = list(st.session_state['pdf_texts'].keys())
     
-    with st.expander("Summarize PDFs"):
-        pdfs_to_summarize = st.multiselect("Select PDFs to Summarize", options=pdf_names)
-        if st.button("Summarize"):
-            if pdfs_to_summarize:
-                text = "".join(st.session_state['pdf_texts'][name] for name in pdfs_to_summarize)
-                if text:
-                    with st.spinner("Summarizing..."):
-                        summary = summarize_text(text)
-                        st.session_state['summary'] = summary
-                        st.write("Summary:", summary)  # Display summary **only here**
-            else:
-                st.warning("Please select PDFs to summarize.")
+   with st.expander("Summarize PDFs"):
+    pdfs_to_summarize = st.multiselect("Select PDFs to Summarize", options=pdf_names)
+    if st.button("Summarize"):
+        if pdfs_to_summarize:
+            text = ""
+            for name in pdfs_to_summarize:
+                if name in st.session_state['pdf_texts']:
+                    text += st.session_state['pdf_texts'][name]
+                else:
+                    st.warning(f"Warning: PDF '{name}' is not processed yet.")
+            if not text.strip():
+                st.error("Error: The selected PDFs contain no readable text.")
+                return
+            with st.spinner("Summarizing..."):
+                summary = summarize_text(text)
+                st.session_state['summary'] = summary
+                st.write("Summary:", summary)
+        else:
+            st.warning("Please select PDFs to summarize.")
 
     with st.expander("Ask Questions"):
         user_question = st.text_input("Ask a Question from the PDF Files")
