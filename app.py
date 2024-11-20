@@ -154,5 +154,5 @@ def main():
             response = process_user_input(user_question)
             st.write("Reply: ", response)
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     main()
