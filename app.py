@@ -101,41 +101,37 @@ def main():
         if st.button("Submit & Process", key="process_button"):
             if pdf_docs:
                 with st.spinner("Processing..."):
-                    raw_text = get_pdf_text(pdf_docs)
-                    text_chunks = get_text_chunks(raw_text)
+                    # Process PDFs only if not already processed
+                    if 'pdf_texts' not in st.session_state:
+                        st.session_state['pdf_texts'] = {}
+
+                    # Extract text and store it in session state if it's not already done
+                    if 'pdf_texts' not in st.session_state or not st.session_state['pdf_texts']:
+                        raw_text = get_pdf_text(pdf_docs)
+                        st.session_state['pdf_texts'] = raw_text  # Save the raw text in session state
+
+                    # Process the text into chunks and save vector store
+                    text_chunks = get_text_chunks(st.session_state['pdf_texts'])
                     get_vector_store(text_chunks)
                     st.success("Processing complete! Ask your questions below.")
             else:
                 st.warning("Please upload at least one PDF file.")
     
-    if 'pdf_texts' not in st.session_state:
-        st.session_state['pdf_texts'] = {}
-
     if 'summary' not in st.session_state:
         st.session_state['summary'] = ""
 
-    pdf_names = [pdf.name for pdf in pdf_docs] if pdf_docs else []
-    
     # Summarization input
     pdfs_to_summarize = st.text_input("Enter the names of the PDFs you want to summarize, separated by commas")
     
     if st.button("Summarize"):
         if pdf_docs:
-            text = ""
-            pdf_names_input = [name.strip() for name in pdfs_to_summarize.split(",")]
-            
-            for pdf_name, pdf_file in zip(pdf_names, pdf_docs):
-                if pdf_name in pdf_names_input:
-                    st.session_state['pdf_texts'][pdf_name] = get_pdf_text([pdf_file])  # Store each PDF's text in session state
+            # Check if the PDF text is already processed
+            if 'pdf_texts' not in st.session_state or st.session_state['pdf_texts'] == "":
+                text = get_pdf_text(pdf_docs)  # Extract text if not already processed
+                st.session_state['pdf_texts'] = text  # Store in session state
+            else:
+                text = st.session_state['pdf_texts']  # Use the processed text from session state
 
-            # Combine the texts for selected PDFs
-            for name in pdf_names_input:
-                if name in st.session_state['pdf_texts']:
-                    text += st.session_state['pdf_texts'][name]
-                else:
-                    st.error(f"Error: PDF '{name}' not found.")
-                    return
-            
             if text:
                 summary = summarize_text(text)
                 st.session_state['summary'] = summary  # Save the summary in session state
@@ -156,4 +152,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
