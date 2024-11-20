@@ -135,12 +135,21 @@ if st.button("Summarize"):
                     st.info(f"PDF '{pdf_name}' is already processed.")
 
         # Combine the texts for selected PDFs
-        for name in pdf_names_input:
-            if name in st.session_state['pdf_texts']:
-                text += st.session_state['pdf_texts'][name]
-            else:
-                st.error(f"Error: PDF '{name}' not found.")
-                   
+       # Combine the texts for selected PDFs
+for name in pdf_names_input:
+    if name in st.session_state['pdf_texts']:
+        text += st.session_state['pdf_texts'][name]
+    else:
+        st.error(f"Error: PDF '{name}' not found.")
+        return  # Stop processing if any PDF name is invalid
+
+# Check if text exists
+if text:
+    # Summarize the text
+    summary = summarize_text(text)
+    st.session_state['summary'] = summary
+    st.write("Summary:", summary)
+
         
         if text:
             # Call the summarization function
