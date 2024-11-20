@@ -115,7 +115,7 @@ def main():
 
     pdf_names = list(st.session_state['pdf_texts'].keys())
     
-   with st.expander("Summarize PDFs"):
+  with st.expander("Summarize PDFs"):
     pdfs_to_summarize = st.multiselect("Select PDFs to Summarize", options=pdf_names)
     if st.button("Summarize"):
         if pdfs_to_summarize:
@@ -134,6 +134,7 @@ def main():
                 st.write("Summary:", summary)
         else:
             st.warning("Please select PDFs to summarize.")
+
 
     with st.expander("Ask Questions"):
         user_question = st.text_input("Ask a Question from the PDF Files")
