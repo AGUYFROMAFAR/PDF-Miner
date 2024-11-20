@@ -124,6 +124,7 @@ def main():
         st.session_state['summary'] = ""
 
     # Summarization input
+    pdf_names = [pdf.name for pdf in pdf_docs] if pdf_docs else []
     pdfs_to_summarize = st.text_input("Enter the names of the PDFs you want to summarize, separated by commas")
     
     if st.button("Summarize"):
@@ -131,15 +132,15 @@ def main():
             text = ""
             pdf_names_input = [name.strip() for name in pdfs_to_summarize.split(",")]
 
-            # Check if the PDF has already been summarized to avoid redundant summarization
-            for pdf_name, pdf_file in zip([pdf.name for pdf in pdf_docs], pdf_docs):
+            # Ensure PDFs are not processed multiple times
+            for pdf_name, pdf_file in zip(pdf_names, pdf_docs):
                 if pdf_name in pdf_names_input:
-                    if pdf_name not in st.session_state['summarized_pdfs']:
+                    if pdf_name not in st.session_state['summarized_pdfs']:  # Only summarize if it hasn't been summarized
                         st.session_state['summarized_pdfs'].append(pdf_name)  # Mark the PDF as summarized
                         text += get_pdf_text([pdf_file])  # Extract and append the text
                     else:
                         st.info(f"PDF '{pdf_name}' has already been summarized.")
-            
+
             if text:
                 summary = summarize_text(text)
                 st.session_state['summary'] = summary  # Save the summary in session state
