@@ -93,6 +93,10 @@ def process_user_input(user_question):
 def main():
     st.set_page_config(page_title="Chat with PDF")
     st.header("Chat with PDF using Gemini💁")
+    
+    for key in ['pdf_texts', 'summary']:
+        if key not in st.session_state:
+            st.session_state[key] = {} if key == 'pdf_texts' else ""
 
     with st.sidebar:
         st.title("Menu:")
@@ -104,55 +108,32 @@ def main():
                     raw_text = get_pdf_text(pdf_docs)
                     text_chunks = get_text_chunks(raw_text)
                     get_vector_store(text_chunks)
+                    st.session_state['pdf_texts'] = {pdf.name: raw_text[i] for i, pdf in enumerate(pdf_docs)}
                     st.success("Processing complete! Ask your questions below.")
             else:
                 st.warning("Please upload at least one PDF file.")
+
+    pdf_names = list(st.session_state['pdf_texts'].keys())
     
-    if 'pdf_texts' not in st.session_state:
-        st.session_state['pdf_texts'] = {}
+    with st.expander("Summarize PDFs"):
+        pdfs_to_summarize = st.multiselect("Select PDFs to Summarize", options=pdf_names)
+        if st.button("Summarize"):
+            if pdfs_to_summarize:
+                text = "".join(st.session_state['pdf_texts'][name] for name in pdfs_to_summarize)
+                if text:
+                    with st.spinner("Summarizing..."):
+                        summary = summarize_text(text)
+                        st.session_state['summary'] = summary
+                        st.write("Summary:", summary)  # Display summary **only here**
+            else:
+                st.warning("Please select PDFs to summarize.")
 
-    if 'summary' not in st.session_state:
-        st.session_state['summary'] = ""
-
-    pdf_names = [pdf.name for pdf in pdf_docs] if pdf_docs else []
-    
-    # Summarization input
-    pdfs_to_summarize = st.text_input("Enter the names of the PDFs you want to summarize, separated by commas")
-    
-    if st.button("Summarize"):
-        if pdf_docs:
-            text = ""
-            pdf_names_input = [name.strip() for name in pdfs_to_summarize.split(",")]
-            
-            for pdf_name, pdf_file in zip(pdf_names, pdf_docs):
-                if pdf_name in pdf_names_input:
-                    st.session_state['pdf_texts'][pdf_name] = get_pdf_text([pdf_file])  # Store each PDF's text in session state
-
-            # Combine the texts for selected PDFs
-            for name in pdf_names_input:
-                if name in st.session_state['pdf_texts']:
-                    text += st.session_state['pdf_texts'][name]
-                else:
-                    st.error(f"Error: PDF '{name}' not found.")
-                    return
-            
-            if text:
-                summary = summarize_text(text)
-                st.session_state['summary'] = summary  # Save the summary in session state
-                st.write("Summary:", summary)
-        else:
-            st.warning("Please upload PDF files before summarizing.")
-
-    # Display the summary if it exists
-    if st.session_state['summary']:
-        st.write("Summary:", st.session_state['summary'])
-
-    # Question input
-    user_question = st.text_input("Ask a Question from the PDF Files")
-    if user_question:
-        with st.spinner("Generating response..."):
-            response = process_user_input(user_question)
-            st.write("Reply: ", response)
+    with st.expander("Ask Questions"):
+        user_question = st.text_input("Ask a Question from the PDF Files")
+        if user_question:
+            with st.spinner("Generating response..."):
+                response = process_user_input(user_question)
+                st.write("Reply: ", response)
 
 if __name__ == "__main__":
     main()
