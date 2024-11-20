@@ -117,31 +117,38 @@ def main():
     pdf_names = [pdf.name for pdf in pdf_docs] if pdf_docs else []
     
     # Summarization input
-    pdfs_to_summarize = st.text_input("Enter the names of the PDFs you want to summarize, separated by commas")
-    
-    if st.button("Summarize"):
-        if pdf_docs:
-            text = ""
-            pdf_names_input = [name.strip() for name in pdfs_to_summarize.split(",")]
-            
-            for pdf_name, pdf_file in zip(pdf_names, pdf_docs):
-                if pdf_name in pdf_names_input:
-                    st.session_state['pdf_texts'][pdf_name] = get_pdf_text([pdf_file])  # Store each PDF's text in session state
+   # Summarization input
+pdfs_to_summarize = st.text_input("Enter the names of the PDFs you want to summarize, separated by commas")
 
-            # Combine the texts for selected PDFs
-            for name in pdf_names_input:
-                if name in st.session_state['pdf_texts']:
-                    text += st.session_state['pdf_texts'][name]
+if st.button("Summarize"):
+    if pdf_docs:
+        text = ""
+        pdf_names_input = [name.strip() for name in pdfs_to_summarize.split(",")]
+        
+        for pdf_name, pdf_file in zip(pdf_names, pdf_docs):
+            if pdf_name in pdf_names_input:
+                # Check if the PDF's text is already processed
+                if pdf_name not in st.session_state['pdf_texts']:
+                    # Extract text and store in session state
+                    st.session_state['pdf_texts'][pdf_name] = get_pdf_text([pdf_file])
                 else:
-                    st.error(f"Error: PDF '{name}' not found.")
-                    return
-            
-            if text:
-                summary = summarize_text(text)
-                st.session_state['summary'] = summary  # Save the summary in session state
-                st.write("Summary:", summary)
-        else:
-            st.warning("Please upload PDF files before summarizing.")
+                    st.info(f"PDF '{pdf_name}' is already processed.")
+
+        # Combine the texts for selected PDFs
+        for name in pdf_names_input:
+            if name in st.session_state['pdf_texts']:
+                text += st.session_state['pdf_texts'][name]
+            else:
+                st.error(f"Error: PDF '{name}' not found.")
+                return
+        
+        if text:
+            # Call the summarization function
+            summary = summarize_text(text)
+            st.session_state['summary'] = summary  # Save the summary in session state
+            st.write("Summary:", summary)
+    else:
+        st.warning("Please upload PDF files before summarizing.")
 
     # Display the summary if it exists
     if st.session_state['summary']:
