@@ -143,15 +143,18 @@ def main():
         
             # Generate summary only if there's combined text
             if text:
-                # Check if summary already exists in session state to avoid duplicates
-                if 'summary' not in st.session_state:
-                    st.session_state['summary'] = summarize_text(text)  # Save the summary in session state
-                    st.write("Summary:", st.session_state['summary'])
+                # If summary already exists for this PDF, skip summarization
+                if pdf_names_input[0] not in st.session_state:
+                    # Save the summary for the current PDF
+                    st.session_state[pdf_names_input[0]] = summarize_text(text)  # Store summary by PDF name
+                    st.write("Summary:", st.session_state[pdf_names_input[0]])  # Display only this summary
                 else:
-                    # Display summary if it exists
-                    st.write("Summary:", st.session_state['summary'])
+                    # If summary is already in session, display it
+                    st.write("Summary:", st.session_state[pdf_names_input[0]])
+
         else:
             st.warning("Please upload PDF files before summarizing.")
+
 
 
 
