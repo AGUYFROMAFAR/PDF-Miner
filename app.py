@@ -5,7 +5,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 import google.generativeai as genai
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.chains import load_qa_chain
+from langchain_community.chains.question_answering import load_qa_chain
 from langchain.prompts import PromptTemplate
 from langchain.docstore.document import Document
 from dotenv import load_dotenv
@@ -182,4 +182,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
